@@ -1,26 +1,25 @@
 import { FileTextOutlined } from "@ant-design/icons";
-import { Layout, Menu, Select, Space, theme } from "antd";
-import FormItem from "antd/es/form/FormItem";
+import { Layout, Menu, theme } from "antd";
 import Sider from "antd/es/layout/Sider";
-import { useEffect, useState } from "react";
-import { httpClient } from "./api/http-client";
-import { ThreeShower } from "./components/ThreeShower";
-import { ThreeHierarchy } from "./helpers/three-helpers";
+import { useState } from "react";
+import { AddThree } from "./pages/AddThree";
+import { ExistingThrees } from "./pages/ExistingThrees";
 
 const { Header, Content } = Layout;
 
-const pages = {
-  1: "ARVORES_EXISTENTES",
-  2: "ADICIONAR_ARVORES",
-};
+enum PAGES {
+  EXISTING_THREES = "EXISTING_THREES",
+  ADD_THREE = "ADD_THREE",
+}
+
 const menuItems = [
   {
-    key: 1,
+    key: PAGES.EXISTING_THREES,
     icon: <FileTextOutlined />,
     label: "Arvores",
   },
   {
-    key: 2,
+    key: PAGES.ADD_THREE,
     icon: <FileTextOutlined />,
     label: "Inserir",
   },
@@ -31,33 +30,7 @@ function App() {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-  const [availableFileNames, setAvailableFileNames] = useState<
-    { value: string; label: string }[]
-  >([]);
-
-  const [page, setPage] = useState(pages["1"]);
-
-  const [fileData, setFileData] = useState<null | ThreeHierarchy>(null);
-
-  const loadAvailableFiles = async () => {
-    const { success, data } = await httpClient.get<string[]>("files");
-    if (success) {
-      setAvailableFileNames(data.map((v) => ({ value: v, label: v })));
-    }
-  };
-
-  const handleSelectFile = async (filename: string) => {
-    const { success, data } = await httpClient.get<ThreeHierarchy>(
-      `files/data/${filename}`
-    );
-    if (success) {
-      setFileData(data);
-    }
-  };
-
-  useEffect(() => {
-    loadAvailableFiles();
-  }, []);
+  const [page, setPage] = useState(PAGES.EXISTING_THREES);
 
   return (
     <Layout>
@@ -86,9 +59,9 @@ function App() {
             theme="dark"
             mode="inline"
             defaultSelectedKeys={["1"]}
-            style={{ height: "100%" }}
+            style={{ minHeight: "100%" }}
             items={menuItems}
-            onClick={(v) => console.log(v)}
+            onClick={(v) => setPage(v.key as PAGES)}
           />
         </Sider>
         <Content style={{ padding: "0 24px", minHeight: 280 }}>
@@ -102,17 +75,10 @@ function App() {
           >
             <h3>Analisadore de Hierarquia de Palavras</h3>
           </div>
-          <Space wrap>
-            <FormItem>
-              <Select
-                options={availableFileNames}
-                style={{ minWidth: 200 }}
-                placeholder="Selecione arquivo"
-                onChange={(v) => handleSelectFile(v)}
-              />
-            </FormItem>
-          </Space>
-          <div>{fileData && <ThreeShower data={fileData} />}</div>
+          <Content>
+            {page === PAGES.EXISTING_THREES && <ExistingThrees />}
+            {page === PAGES.ADD_THREE && <AddThree />}
+          </Content>
         </Content>
       </Layout>
     </Layout>

@@ -1,3 +1,5 @@
+import { Tree } from "../pages/AddThree";
+
 export type ThreeResultType = {
   key: string;
   children: string[];
@@ -64,5 +66,31 @@ export class ThreeHelper {
   static getDepth(depth: number, data: ThreeHierarchy) {
     const allLevels = this.getLevels(data);
     return allLevels[depth];
+  }
+
+  static formatStateTreeToObject(tree: Tree[]): Record<string, any> {
+    const formatNode = (node: Tree): any => {
+      if (node.children.length === 0) {
+        return node.key;
+      }
+
+      const childrenObj = node.children.reduce((acc, child) => {
+        const formattedChild = formatNode(child);
+        if (typeof formattedChild === "string") {
+          if (!Array.isArray(acc)) acc = [];
+          acc.push(formattedChild);
+        } else {
+          acc[child.key] = formattedChild;
+        }
+        return acc;
+      }, {} as any);
+
+      return childrenObj;
+    };
+
+    return tree.reduce((acc, node) => {
+      acc[node.key] = formatNode(node);
+      return acc;
+    }, {} as Record<string, any>);
   }
 }
