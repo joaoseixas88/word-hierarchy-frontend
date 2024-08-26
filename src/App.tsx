@@ -73,7 +73,7 @@ function App() {
               borderRadius: borderRadiusLG,
             }}
           >
-            <h3>Analisadore de Hierarquia de Palavras</h3>
+            <h3>Analisador de Hierarquia de Palavras</h3>
           </div>
           <Content>
             {page === PAGES.EXISTING_THREES && <ExistingThrees />}
